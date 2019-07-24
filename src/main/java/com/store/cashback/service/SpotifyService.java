@@ -32,9 +32,12 @@ public class SpotifyService {
         Arrays.asList(Categories.values()).forEach(categorie -> {
             try{
                 map.put(categorie.getId(), new ArrayList<>());
-                List playlistSimplifieds = Arrays.asList(spotifyApi.getCategorysPlaylists(
-                        categorie.getId()).build().execute().getItems());
-                map.put(categorie.getId(),  this.mountAlbum(playlistSimplifieds, 0, map.get(categorie.getId())));
+
+                spotifyApi.searchItem("genres:"+categorie.getId(), "album").limit(50).build().execute().getAlbums();
+
+                Recommendations recommendations = spotifyApi.getRecommendations().limit(50).seed_genres(
+                        categorie.getId()).build().execute();
+                map.put(categorie.getId(),  this.mountAlbum(recommendations, 0, map.get(categorie.getId())));
             }catch (Exception ex){
                 log.error(ex.getMessage());
             }
@@ -53,30 +56,36 @@ public class SpotifyService {
         }
     }
 
-    private List<String> mountAlbum(List<PlaylistSimplified> playlistSimplifieds, int skip, List<String> values){
-        List<String> returnValues = new ArrayList<>();
-        List<String> returnValues2 = new ArrayList<>();
-        playlistSimplifieds.stream().skip(skip).limit(skip + 1).forEach(playlistSimplified -> {
+    private List<String> mountAlbum(Recommendations recommendations, int skip, List<String> values){
+        Arrays.asList(recommendations.getTracks()).stream().map(TrackSimplified::getId).distinct().limit(50).collect(
+                Collectors.toList()).forEach(id -> {
             try {
-                List<PlaylistTrack> playlistTracks = Arrays.asList(spotifyApi.getPlaylistsTracks(
-                        playlistSimplified.getId()).build().execute().getItems());
-                values.addAll(playlistTracks.stream().map(PlaylistTrack::getTrack).collect(Collectors.toList()).stream()
-                        .map(track -> track.getAlbum().getName()).collect(Collectors.toList()));
-                returnValues.addAll(values.stream().distinct().collect(
-                        Collectors.toList()).stream().limit(50).collect(Collectors.toList()));
-
-                if(returnValues.size() != 50 && playlistTracks.size() != 0){
-                    returnValues2.addAll(mountAlbum(playlistSimplifieds, skip + 1, returnValues));
-                }else{
-                    returnValues2.addAll(returnValues);
-                }
+                Track track = spotifyApi.getTrack(id).build().execute();
+                values.add(track.getAlbum().getName());
 
             }catch (Exception e){
                 log.error(e.getMessage());
             }
         });
 
-        return returnValues2;
+//        Arrays.asList(recommendations.getTracks()).stream().skip(skip).limit(skip + 1).forEach(trackSimplified -> {
+//            try {
+//                Track track = spotifyApi.getTrack(trackSimplified.getId()).build().execute();
+//                track.getAlbum().getName();
+//                values.add(track.getAlbum().getName());
+//                returnValues.addAll(values.stream().distinct().collect(
+//                        Collectors.toList()).stream().limit(50).collect(Collectors.toList()));
+//                if(returnValues.size() != 50){
+//                    returnValues2.addAll(mountAlbum(recommendations, skip + 1, returnValues));
+//                }else{
+//                    returnValues2.addAll(returnValues);
+//                }
+//            }catch (Exception e){
+//                log.error(e.getMessage());
+//            }
+//        });
+
+        return values;
     }
 
 }

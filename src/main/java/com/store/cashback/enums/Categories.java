@@ -8,7 +8,7 @@ public enum Categories {
 
     POP("pop", "Pop"),
     MPB("mpb", "Mpb"),
-    CLASSIC("classic", "Classic"),
+    CLASSIC("classical", "Classic"),
     ROCK("rock", "rock");
 
     private String id;
