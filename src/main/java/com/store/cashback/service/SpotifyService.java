@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -24,32 +25,21 @@ public class SpotifyService {
     private static final ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
             .build();
 
-    public Map<String, Map<String, String>> getDiscs() throws Exception {
+    public Map<String, List<String>> getAlbums() {
         this.updateAcessToken();
         log.info("getCatalog");
-        Map<String, Map<String, String>> map = new HashMap<>();
+        Map<String, List<String>> map = new HashMap<>();
         Arrays.asList(Categories.values()).forEach(categorie -> {
             try{
-                map.put(categorie.getId(), new HashMap<>());
-                List<PlaylistSimplified> playlistSimplifieds = Arrays.asList(spotifyApi.getCategorysPlaylists(
+                map.put(categorie.getId(), new ArrayList<>());
+                List playlistSimplifieds = Arrays.asList(spotifyApi.getCategorysPlaylists(
                         categorie.getId()).build().execute().getItems());
-                playlistSimplifieds.stream().forEach(playlistSimplified -> {
-                    try {
-                        List<PlaylistTrack> playlistTracks = Arrays.asList(spotifyApi.getPlaylistsTracks(playlistSimplified.getId()).build().execute().getItems());
-                        playlistTracks.parallelStream().limit(50).forEach(playlistTrack -> {
-                            if(map.get(categorie.getId()).size() < 50) {
-                                map.get(categorie.getId()).put(playlistTrack.getTrack().getAlbum().getName(),
-                                        playlistTrack.getTrack().getAlbum().getName());
-                            }
-                        });
-                    }catch (Exception e){
-                        log.error(e.getMessage());
-                    }
-                });
+                map.put(categorie.getId(),  this.mountAlbum(playlistSimplifieds, 0, map.get(categorie.getId())));
             }catch (Exception ex){
                 log.error(ex.getMessage());
             }
         });
+
         return map;
     }
 
@@ -61,6 +51,32 @@ public class SpotifyService {
         } catch (IOException | SpotifyWebApiException e) {
             log.error("Error: {}", e.getMessage());
         }
+    }
+
+    private List<String> mountAlbum(List<PlaylistSimplified> playlistSimplifieds, int skip, List<String> values){
+        List<String> returnValues = new ArrayList<>();
+        List<String> returnValues2 = new ArrayList<>();
+        playlistSimplifieds.stream().skip(skip).limit(skip + 1).forEach(playlistSimplified -> {
+            try {
+                List<PlaylistTrack> playlistTracks = Arrays.asList(spotifyApi.getPlaylistsTracks(
+                        playlistSimplified.getId()).build().execute().getItems());
+                values.addAll(playlistTracks.stream().map(PlaylistTrack::getTrack).collect(Collectors.toList()).stream()
+                        .map(track -> track.getAlbum().getName()).collect(Collectors.toList()));
+                returnValues.addAll(values.stream().distinct().collect(
+                        Collectors.toList()).stream().limit(50).collect(Collectors.toList()));
+
+                if(returnValues.size() != 50 && playlistTracks.size() != 0){
+                    returnValues2.addAll(mountAlbum(playlistSimplifieds, skip + 1, returnValues));
+                }else{
+                    returnValues2.addAll(returnValues);
+                }
+
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
+        });
+
+        return returnValues2;
     }
 
 }

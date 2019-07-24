@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(SpringRunner.class)
@@ -20,7 +20,7 @@ public class SpotifyServiceTest {
     @Autowired
     private SpotifyService spotifyService;
 
-    private static Map<String, Map<String, String>> albums;
+    private static Map<String, List<String>> albums;
 
     private static boolean started = false;
 
@@ -29,7 +29,7 @@ public class SpotifyServiceTest {
     @Before
     public void init() throws Exception{
         if(!started){
-            albums = spotifyService.getDiscs();
+            albums = spotifyService.getAlbums();
             started = true;
         }
     }
