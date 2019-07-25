@@ -1,5 +1,6 @@
 package com.store.cashback.enity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
 @Table(name = "albums")
 @Getter
 @Setter
+@AllArgsConstructor
 public class Album {
 
     @Id
