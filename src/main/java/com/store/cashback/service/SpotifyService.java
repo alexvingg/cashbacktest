@@ -32,9 +32,6 @@ public class SpotifyService {
         Arrays.asList(Categories.values()).forEach(categorie -> {
             try{
                 map.put(categorie.getId(), new ArrayList<>());
-
-                spotifyApi.searchItem("genres:"+categorie.getId(), "album").limit(50).build().execute().getAlbums();
-
                 Recommendations recommendations = spotifyApi.getRecommendations().limit(50).seed_genres(
                         categorie.getId()).build().execute();
                 map.put(categorie.getId(),  this.mountAlbum(recommendations, 0, map.get(categorie.getId())));
@@ -57,8 +54,8 @@ public class SpotifyService {
     }
 
     private List<String> mountAlbum(Recommendations recommendations, int skip, List<String> values){
-        Arrays.asList(recommendations.getTracks()).stream().map(TrackSimplified::getId).distinct().limit(50).collect(
-                Collectors.toList()).forEach(id -> {
+        Arrays.asList(recommendations.getTracks()).parallelStream().map(TrackSimplified::getId).distinct().limit(50).collect(
+                Collectors.toList()).parallelStream().forEach(id -> {
             try {
                 Track track = spotifyApi.getTrack(id).build().execute();
                 values.add(track.getAlbum().getName());

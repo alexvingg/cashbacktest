@@ -1,0 +1,14 @@
+version: '3.1'
+
+services:
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      - MYSQL_DATABASE=cashback
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=cash
+      - MYSQL_PASSWORD=back
+
+    ports:
+      - 3306:3306
