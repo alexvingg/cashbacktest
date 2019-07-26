@@ -1,7 +1,8 @@
 package com.store.cashback.service;
 
 import com.store.cashback.entity.Album;
-import com.store.cashback.enums.Categories;
+import com.store.cashback.enums.Genres;
+import com.store.cashback.util.UUIDUtils;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
@@ -14,6 +15,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,12 +41,12 @@ public class SpotifyService {
         this.updateAcessToken();
         log.info("getAlbums");
         Map<String, List<Album>> map = new HashMap<>();
-        Arrays.asList(Categories.values()).forEach(category -> {
+        Arrays.asList(Genres.values()).forEach(genre -> {
             try{
-                map.put(category.getId(), new ArrayList<>());
+                map.put(genre.getId(), new ArrayList<>());
                 Recommendations recommendations = spotifyApi.getRecommendations().limit(50).seed_genres(
-                        category.getId()).build().execute();
-                map.put(category.getId(),  this.mountAlbum(category.getId(), recommendations, map.get(category.getId())));
+                        genre.getId()).build().execute();
+                map.put(genre.getId(),  this.mountAlbum(genre.getId(), recommendations, map.get(genre.getId())));
             }catch (Exception ex){
                 log.error(ex.getMessage());
             }
@@ -60,16 +65,17 @@ public class SpotifyService {
         }
     }
 
-    private List<Album> mountAlbum(String category, Recommendations recommendations, List<Album> values){
+    private List<Album> mountAlbum(String genre, Recommendations recommendations, List<Album> values){
         Arrays.asList(recommendations.getTracks()).parallelStream().map(TrackSimplified::getId).distinct().limit(50).collect(
                 Collectors.toList()).stream().forEach(id -> {
             try {
                 Track track = spotifyApi.getTrack(id).build().execute();
 
                 Album album = new Album(null,
-                        String.valueOf(UUID.randomUUID()).replace("-", ""),
+                        UUIDUtils.cleanUuid(),
                         track.getAlbum().getName(),
-                        category);
+                        genre,
+                        new BigDecimal(BigInteger.valueOf(new Random().nextInt(100001)), 2));
 
                 values.add(album);
 

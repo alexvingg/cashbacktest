@@ -3,7 +3,7 @@ package com.store.cashback.enums;
 import lombok.Getter;
 
 @Getter
-public enum Categories {
+public enum Genres {
 
     POP("pop", "Pop"),
     MPB("mpb", "Mpb"),
@@ -14,7 +14,7 @@ public enum Categories {
 
     private String label;
 
-    Categories(String id, String label){
+    Genres(String id, String label){
         this.label = label;
         this.id = id;
     }

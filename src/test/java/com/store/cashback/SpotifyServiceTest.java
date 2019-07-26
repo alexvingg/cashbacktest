@@ -1,7 +1,7 @@
 package com.store.cashback;
 
 import com.store.cashback.entity.Album;
-import com.store.cashback.enums.Categories;
+import com.store.cashback.enums.Genres;
 import com.store.cashback.service.SpotifyService;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class SpotifyServiceTest {
     private static final int SIZE = 50;
 
     @Before
-    public void init() throws Exception{
+    public void init() throws Exception {
         if(!started){
             albums = spotifyService.getAlbums();
             started = true;
@@ -37,22 +37,22 @@ public class SpotifyServiceTest {
 
     @Test
     public void validateCatalogRock() {
-        assertEquals(albums.get(Categories.ROCK.getId()).size(), SIZE);
+        assertEquals(albums.get(Genres.ROCK.getId()).size(), SIZE);
     }
 
     @Test
     public void validateCatalogPop() {
-        assertEquals(albums.get(Categories.POP.getId()).size(), SIZE);
+        assertEquals(albums.get(Genres.POP.getId()).size(), SIZE);
     }
 
     @Test
     public void validateCatalogClassic() {
-        assertEquals(albums.get(Categories.CLASSICAL.getId()).size(), SIZE);
+        assertEquals(albums.get(Genres.CLASSICAL.getId()).size(), SIZE);
     }
 
     @Test
     public void validateCatalogMpb() {
-        assertEquals(albums.get(Categories.MPB.getId()).size(), SIZE);
+        assertEquals(albums.get(Genres.MPB.getId()).size(), SIZE);
     }
 
 }
