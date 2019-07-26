@@ -64,8 +64,8 @@ public class SaleResource {
     ResponseEntity<Response> saveSale(@RequestBody List<Album> albums) {
         log.info("saveSale {}", albums);
         try{
-            this.saleService.sell(albums);
-            return ResponseEntity.ok().body(Response.ok());
+            return ResponseEntity.ok().body(Response.ok().addData("sale",
+                    this.saleService.sell(albums)));
         }catch (InvalidParamsException ex){
             log.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.ok(ex.getMessage()));

@@ -60,7 +60,7 @@ public class SaleService {
         return this.saleRepository.findBySlug(slug);
     }
 
-    public void sell(List<Album> albums){
+    public Sale sell(List<Album> albums){
 
         log.info("sell albums {}", albums);
 
@@ -89,7 +89,7 @@ public class SaleService {
             newSale.getSaleAlbums().add(newSaleAlbum);
         });
 
-        this.saleRepository.save(newSale);
+        return this.saleRepository.save(newSale);
     }
 
 
