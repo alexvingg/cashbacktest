@@ -11,4 +11,5 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
 
     Page<Sale> findByCreatedAtBetween(Date dateStart, Date dateFinal, Pageable pageable);
 
+    Sale findBySlug(String slug);
 }

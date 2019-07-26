@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 
@@ -26,6 +27,13 @@ public class SaleService {
         }
         PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), 10, Sort.by("createdAt").descending());
         return this.saleRepository.findByCreatedAtBetween(dateStart, dateEnd, pageRequest);
+    }
+
+    public Sale findSale(String slug){
+        if(!StringUtils.hasText(slug)){
+            throw new RuntimeException("invalid params");
+        }
+        return this.saleRepository.findBySlug(slug);
     }
 
 

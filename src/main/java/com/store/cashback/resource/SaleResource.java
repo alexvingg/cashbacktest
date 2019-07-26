@@ -1,8 +1,6 @@
 package com.store.cashback.resource;
 
-import com.store.cashback.entity.Album;
 import com.store.cashback.entity.Sale;
-import com.store.cashback.service.AlbumService;
 import com.store.cashback.service.SaleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,8 +23,12 @@ public class SaleResource {
     ResponseEntity<Page<Sale>> findSales(@RequestParam("dateStart") @DateTimeFormat(pattern="dd/MM/yyyy") Date dateStart,
                                          @RequestParam("dateEnd") @DateTimeFormat(pattern="dd/MM/yyyy") Date dateEnd,
                                          Pageable pageable) {
-
         return ResponseEntity.ok().body(saleService.findAllSales(dateStart, dateEnd, pageable));
+    }
+
+    @GetMapping("/{slug}")
+    ResponseEntity<Sale> findSales(@PathVariable String slug) {
+        return ResponseEntity.ok().body(saleService.findSale(slug));
     }
 
 }
