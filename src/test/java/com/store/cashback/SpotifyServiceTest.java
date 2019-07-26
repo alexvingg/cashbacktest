@@ -1,5 +1,6 @@
 package com.store.cashback;
 
+import com.store.cashback.entity.Album;
 import com.store.cashback.enums.Categories;
 import com.store.cashback.service.SpotifyService;
 import org.junit.Before;
@@ -20,7 +21,7 @@ public class SpotifyServiceTest {
     @Autowired
     private SpotifyService spotifyService;
 
-    private static Map<String, List<String>> albums;
+    private static Map<String, List<Album>> albums;
 
     private static boolean started = false;
 
@@ -46,7 +47,7 @@ public class SpotifyServiceTest {
 
     @Test
     public void validateCatalogClassic() {
-        assertEquals(albums.get(Categories.CLASSIC.getId()).size(), SIZE);
+        assertEquals(albums.get(Categories.CLASSICAL.getId()).size(), SIZE);
     }
 
     @Test

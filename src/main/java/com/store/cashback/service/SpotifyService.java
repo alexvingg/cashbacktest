@@ -1,5 +1,6 @@
 package com.store.cashback.service;
 
+import com.store.cashback.entity.Album;
 import com.store.cashback.enums.Categories;
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -7,6 +8,9 @@ import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.*;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,16 +29,19 @@ public class SpotifyService {
     private static final ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
             .build();
 
-    public Map<String, List<String>> getAlbums() {
+    @Autowired
+    private AlbumService albumService;
+
+    public Map<String, List<Album>> getAlbums() {
         this.updateAcessToken();
-        log.info("getCatalog");
-        Map<String, List<String>> map = new HashMap<>();
-        Arrays.asList(Categories.values()).forEach(categorie -> {
+        log.info("getAlbums");
+        Map<String, List<Album>> map = new HashMap<>();
+        Arrays.asList(Categories.values()).forEach(category -> {
             try{
-                map.put(categorie.getId(), new ArrayList<>());
+                map.put(category.getId(), new ArrayList<>());
                 Recommendations recommendations = spotifyApi.getRecommendations().limit(50).seed_genres(
-                        categorie.getId()).build().execute();
-                map.put(categorie.getId(),  this.mountAlbum(recommendations, 0, map.get(categorie.getId())));
+                        category.getId()).build().execute();
+                map.put(category.getId(),  this.mountAlbum(category.getId(), recommendations, map.get(category.getId())));
             }catch (Exception ex){
                 log.error(ex.getMessage());
             }
@@ -53,36 +60,37 @@ public class SpotifyService {
         }
     }
 
-    private List<String> mountAlbum(Recommendations recommendations, int skip, List<String> values){
+    private List<Album> mountAlbum(String category, Recommendations recommendations, List<Album> values){
         Arrays.asList(recommendations.getTracks()).parallelStream().map(TrackSimplified::getId).distinct().limit(50).collect(
-                Collectors.toList()).parallelStream().forEach(id -> {
+                Collectors.toList()).stream().forEach(id -> {
             try {
                 Track track = spotifyApi.getTrack(id).build().execute();
-                values.add(track.getAlbum().getName());
+
+                Album album = new Album(null,
+                        String.valueOf(UUID.randomUUID()).replace("-", ""),
+                        track.getAlbum().getName(),
+                        category);
+
+                values.add(album);
 
             }catch (Exception e){
                 log.error(e.getMessage());
             }
         });
 
-//        Arrays.asList(recommendations.getTracks()).stream().skip(skip).limit(skip + 1).forEach(trackSimplified -> {
-//            try {
-//                Track track = spotifyApi.getTrack(trackSimplified.getId()).build().execute();
-//                track.getAlbum().getName();
-//                values.add(track.getAlbum().getName());
-//                returnValues.addAll(values.stream().distinct().collect(
-//                        Collectors.toList()).stream().limit(50).collect(Collectors.toList()));
-//                if(returnValues.size() != 50){
-//                    returnValues2.addAll(mountAlbum(recommendations, skip + 1, returnValues));
-//                }else{
-//                    returnValues2.addAll(returnValues);
-//                }
-//            }catch (Exception e){
-//                log.error(e.getMessage());
-//            }
-//        });
-
         return values;
+    }
+
+    @EventListener
+    public void seedAlbumSpotify(ContextRefreshedEvent event) {
+        log.info("seedAlbumSpotify");
+        List<Album> albums = this.albumService.findAll();
+
+        if(albums.isEmpty()){
+            this.getAlbums().forEach((s, albums1) -> {
+                this.albumService.saveAlbums(albums1);
+            });
+        }
     }
 
 }

@@ -1,10 +1,12 @@
 package com.store.cashback.service;
 
-import com.store.cashback.enity.Album;
+import com.store.cashback.entity.Album;
 import com.store.cashback.repository.AlbumRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,16 +25,26 @@ public class AlbumService {
         this.albumRepository.saveAll(albums);
     }
 
-    public List<Album> findAlbums(String genre, Integer page){
+    public Page<Album> findAlbums(String genre, Pageable pageable){
         if(!StringUtils.hasText(genre)){
             throw new RuntimeException("invalid params");
         }
 
-        if(page == null){
-            page = 0;
+        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), 10, Sort.by("name").ascending());
+        return this.albumRepository.findByGenre(genre, pageRequest);
+    }
+
+    public List<Album> findAll(){
+        log.info("find all");
+        return this.albumRepository.findAll();
+    }
+
+    public Album findBySlug(String slug){
+        log.info("findBySlug {}", slug);
+        if(!StringUtils.hasText(slug)){
+            throw new RuntimeException("invalid params");
         }
 
-        PageRequest pageRequest = PageRequest.of(page, 10, Sort.by("name").ascending());
-        return this.albumRepository.findByGenre(genre, pageRequest);
+        return this.albumRepository.findBySlug(slug);
     }
 }

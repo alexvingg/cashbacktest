@@ -1,14 +1,13 @@
 package com.store.cashback.enums;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public enum Categories {
 
     POP("pop", "Pop"),
     MPB("mpb", "Mpb"),
-    CLASSIC("classical", "Classic"),
+    CLASSICAL("classical", "classical"),
     ROCK("rock", "rock");
 
     private String id;
