@@ -7,7 +7,6 @@ import com.store.cashback.entity.SaleAlbum;
 import com.store.cashback.exception.InvalidParamsException;
 import com.store.cashback.repository.SaleRepository;
 import com.store.cashback.util.UUIDUtils;
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,8 +19,10 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @Service
 @Slf4j

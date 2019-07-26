@@ -24,9 +24,6 @@ public class SpotifyServiceTest {
     @Autowired
     private SpotifyService spotifyService;
 
-    @MockBean
-    private SpotifyClient spofityClient;
-
     private static Map<String, List<Album>> albums;
 
     private static boolean started = false;
