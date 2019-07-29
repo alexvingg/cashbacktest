@@ -25,6 +25,6 @@ public class CashbackService {
 
     public Cashback findCashbackDayOfWeekAndGenre(String genre, DayOfWeek dayOfWeek){
         log.info("findCashbackDayOfWeekAndGenre {} {}", dayOfWeek.getValue(), genre);
-        return this.cashbackRepository.findByDayOfWeekAndGenre(dayOfWeek, genre);
+        return this.cashbackRepository.findByDayOfWeekAndGenre(dayOfWeek.getValue(), genre);
     }
 }

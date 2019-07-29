@@ -25,7 +25,7 @@ import java.util.List;
 
     public Cashback findCashbackDayOfWeekAndGenre(String genre, DayOfWeek dayOfWeek){
 <span class="nc" id="L27">        log.info(&quot;findCashbackDayOfWeekAndGenre {} {}&quot;, dayOfWeek.getValue(), genre);</span>
-<span class="nc" id="L28">        return this.cashbackRepository.findByDayOfWeekAndGenre(dayOfWeek, genre);</span>
+<span class="nc" id="L28">        return this.cashbackRepository.findByDayOfWeekAndGenre(dayOfWeek.getValue(), genre);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

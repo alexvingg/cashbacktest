@@ -11,5 +11,5 @@ import java.util.List;
 
 public interface CashbackRepository extends JpaRepository<Cashback, Long> {
 
-    Cashback findByDayOfWeekAndGenre(DayOfWeek dayOfWeek, String genre);
+    Cashback findByDayOfWeekAndGenre(Integer dayOfWeek, String genre);
 }

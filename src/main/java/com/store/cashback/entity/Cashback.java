@@ -26,7 +26,7 @@ public class Cashback {
     private Long id;
 
     @Column
-    private DayOfWeek dayOfWeek;
+    private Integer dayOfWeek;
 
     @Column
     private Integer percent;
