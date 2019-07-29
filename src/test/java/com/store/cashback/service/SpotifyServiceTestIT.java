@@ -1,15 +1,14 @@
-package com.store.cashback;
+package com.store.cashback.service;
 
 import com.store.cashback.entity.Album;
 import com.store.cashback.enums.Genres;
-import com.store.cashback.service.SpotifyService;
-import com.store.cashback.spotify.SpotifyClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
@@ -18,11 +17,15 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
-public class SpotifyServiceTest {
+@SpringBootTest()
+@ActiveProfiles("test")
+public class SpotifyServiceTestIT {
 
     @Autowired
     private SpotifyService spotifyService;
+
+    @MockBean
+    private AlbumService albumService;
 
     private static Map<String, List<Album>> albums;
 

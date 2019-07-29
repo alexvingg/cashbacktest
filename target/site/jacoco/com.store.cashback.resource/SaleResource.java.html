@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.resource</a> &gt; <span class="el_source">SaleResource.java</span></div><h1>SaleResource.java</h1><pre class="source lang-java linenums">package com.store.cashback.resource;
+
+import com.store.cashback.entity.Album;
+import com.store.cashback.exception.InvalidParamsException;
+import com.store.cashback.response.Response;
+import com.store.cashback.service.SaleService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.List;
+
+
+@RestController
+@RequestMapping(&quot;v1/sale&quot;)
+<span class="fc" id="L21">@Slf4j</span>
+<span class="fc" id="L22">public class SaleResource {</span>
+
+    @Autowired
+    private SaleService saleService;
+
+    @GetMapping
+    ResponseEntity&lt;Response&gt; findSales(@RequestParam(&quot;dateStart&quot;) @DateTimeFormat(pattern=&quot;dd/MM/yyyy&quot;) Date dateStart,
+                                         @RequestParam(&quot;dateEnd&quot;) @DateTimeFormat(pattern=&quot;dd/MM/yyyy&quot;) Date dateEnd,
+                                         Pageable pageable) {
+<span class="fc" id="L31">        log.info(&quot;findSales {} {}&quot;, dateStart, dateEnd);</span>
+
+        try{
+<span class="fc" id="L34">            return ResponseEntity.ok().body(Response.ok().addData(&quot;sales&quot;,</span>
+<span class="fc" id="L35">                    this.saleService.findAllSales(dateStart, dateEnd, pageable)));</span>
+<span class="nc" id="L36">        }catch (InvalidParamsException ex){</span>
+<span class="nc" id="L37">            log.error(ex.getMessage());</span>
+<span class="nc" id="L38">            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.ok(ex.getMessage()));</span>
+<span class="nc" id="L39">        }catch (Exception ex){</span>
+<span class="nc" id="L40">            log.error(ex.getMessage());</span>
+<span class="nc" id="L41">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L42">                    .body(Response.internalServerError());</span>
+        }
+
+    }
+
+    @GetMapping(&quot;/{slug}&quot;)
+    ResponseEntity&lt;Response&gt; findSale(@PathVariable String slug) {
+<span class="fc" id="L49">        log.info(&quot;findSales {}&quot;, slug);</span>
+        try{
+<span class="fc" id="L51">            return ResponseEntity.ok().body(Response.ok().addData(&quot;sale&quot;, saleService.findSale(slug)));</span>
+<span class="nc" id="L52">        }catch (InvalidParamsException ex){</span>
+<span class="nc" id="L53">            log.error(ex.getMessage());</span>
+<span class="nc" id="L54">            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.ok(ex.getMessage()));</span>
+<span class="nc" id="L55">        }catch (Exception ex){</span>
+<span class="nc" id="L56">            log.error(ex.getMessage());</span>
+<span class="nc" id="L57">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L58">                    .body(Response.internalServerError());</span>
+        }
+    }
+
+
+    @PostMapping
+    ResponseEntity&lt;Response&gt; saveSale(@RequestBody List&lt;Album&gt; albums) {
+<span class="nc" id="L65">        log.info(&quot;saveSale {}&quot;, albums);</span>
+        try{
+<span class="nc" id="L67">            return ResponseEntity.ok().body(Response.ok().addData(&quot;sale&quot;,</span>
+<span class="nc" id="L68">                    this.saleService.sell(albums)));</span>
+<span class="nc" id="L69">        }catch (InvalidParamsException ex){</span>
+<span class="nc" id="L70">            log.error(ex.getMessage());</span>
+<span class="nc" id="L71">            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.ok(ex.getMessage()));</span>
+<span class="nc" id="L72">        }catch (Exception ex){</span>
+<span class="nc" id="L73">            log.error(ex.getMessage());</span>
+<span class="nc" id="L74">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L75">                    .body(Response.internalServerError());</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

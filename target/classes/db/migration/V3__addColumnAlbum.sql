@@ -1,0 +1,2 @@
+ALTER TABLE albums
+ADD COLUMN slug VARCHAR(250) AFTER id;

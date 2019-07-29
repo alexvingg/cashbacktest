@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Response.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.response</a> &gt; <span class="el_source">Response.java</span></div><h1>Response.java</h1><pre class="source lang-java linenums">package com.store.cashback.response;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
+<span class="nc" id="L12">@Setter</span>
+<span class="fc" id="L13">public class Response {</span>
+
+<span class="fc" id="L15">	private String msg;</span>
+
+<span class="fc" id="L17">	private Map&lt;String, Object&gt; data;</span>
+
+	public static Response ok() {
+<span class="fc" id="L20">		return new Response();</span>
+	}
+
+	public static Response ok(final String message) {
+<span class="nc" id="L24">		final Response r = Response.ok();</span>
+<span class="nc" id="L25">		r.setMsg(message);</span>
+<span class="nc" id="L26">		return r;</span>
+	}
+
+	public static Response error(final String message) {
+<span class="nc" id="L30">		final Response r = new Response();</span>
+<span class="nc" id="L31">		r.setMsg(message);</span>
+<span class="nc" id="L32">		return r;</span>
+	}
+
+	public static Response internalServerError() {
+<span class="nc" id="L36">		return Response.error(&quot;Internal Server Error&quot;);</span>
+	}
+
+	public Response addData(final String key, final Object value) {
+
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">		if (this.data == null) {</span>
+<span class="fc" id="L42">			this.data = new HashMap&lt;&gt;();</span>
+		}
+
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">		if (this.data.containsKey(key)) {</span>
+<span class="nc" id="L46">			throw new IllegalArgumentException(String.format(&quot;Key [%s] exists.&quot;, key));</span>
+		}
+
+<span class="fc" id="L49">		this.data.put(key, value);</span>
+
+<span class="fc" id="L51">		return this;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L56">		return &quot;ValidResponse [msg=&quot; + msg + &quot;, data=&quot; + data + &quot;]&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

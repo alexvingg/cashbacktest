@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlbumService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.service</a> &gt; <span class="el_source">AlbumService.java</span></div><h1>AlbumService.java</h1><pre class="source lang-java linenums">package com.store.cashback.service;
+
+import com.store.cashback.entity.Album;
+import com.store.cashback.repository.AlbumRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
+
+@Service
+<span class="fc" id="L17">@Slf4j</span>
+<span class="nc" id="L18">public class AlbumService {</span>
+
+    @Autowired
+    private AlbumRepository albumRepository;
+
+    public void saveAlbums(List&lt;Album&gt; albums){
+<span class="nc" id="L24">        log.info(&quot;save albums length {}&quot;, albums.size());</span>
+<span class="nc" id="L25">        this.albumRepository.saveAll(albums);</span>
+<span class="nc" id="L26">    }</span>
+
+    public Page&lt;Album&gt; findAlbums(String genre, Pageable pageable){
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        if(!StringUtils.hasText(genre)){</span>
+<span class="nc" id="L30">            throw new RuntimeException(&quot;invalid params&quot;);</span>
+        }
+
+<span class="nc" id="L33">        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(&quot;name&quot;).ascending());</span>
+<span class="nc" id="L34">        return this.albumRepository.findByGenre(genre, pageRequest);</span>
+    }
+
+    public List&lt;Album&gt; findAll(){
+<span class="nc" id="L38">        log.info(&quot;find all&quot;);</span>
+<span class="nc" id="L39">        return this.albumRepository.findAll();</span>
+    }
+
+    public Album findBySlug(String slug){
+<span class="nc" id="L43">        log.info(&quot;findBySlug {}&quot;, slug);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if(!StringUtils.hasText(slug)){</span>
+<span class="nc" id="L45">            throw new RuntimeException(&quot;invalid params&quot;);</span>
+        }
+
+<span class="nc" id="L48">        return this.albumRepository.findBySlug(slug);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

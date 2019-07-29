@@ -8,40 +8,47 @@ import com.wrapper.spotify.model_objects.specification.Recommendations;
 import com.wrapper.spotify.model_objects.specification.Track;
 import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 
-@Component
 @Slf4j
+@Component
 public class SpotifyClient {
 
-    private static final SpotifyApi spotifyApi = new SpotifyApi.Builder()
-            .setClientId("7e9419289c984d7fba856f2e1718bcbd")
-            .setClientSecret("5f5c823f44b246af896c2728e7db9da0")
-            .build();
+    @Autowired
+    private Environment env;
 
-    private static final ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
-            .build();
 
     public Recommendations getRecommendations(Genres genre) throws IOException, SpotifyWebApiException {
-        this.updateAcessToken();
-        return this.spotifyApi.getRecommendations().limit(50).seed_genres(
+        return this.spotifyApi().getRecommendations().limit(50).seed_genres(
                 genre.getId()).build().execute();
     }
 
     public Track getTrack(String id) throws IOException, SpotifyWebApiException {
-        return this.spotifyApi.getTrack(id).build().execute();
+        return this.spotifyApi().getTrack(id).build().execute();
     }
 
-    private void updateAcessToken(){
+    private SpotifyApi spotifyApi(){
+        SpotifyApi spotifyApi = null;
         try {
+            spotifyApi = new SpotifyApi.Builder()
+                    .setClientId(env.getProperty("SPOTIFY_CLIENT", this.env.getProperty("spotify.client")))
+                    .setClientSecret(env.getProperty("SPOTIFY_CLIENT_SECRET",this.env.getProperty("spotify.client.secret")))
+                    .build();
+            ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()
+                    .build();
             final ClientCredentials clientCredentials = clientCredentialsRequest.execute();
-            this.spotifyApi.setAccessToken(clientCredentials.getAccessToken());
-            log.info("Expires in: {}", clientCredentials.getExpiresIn());
+            spotifyApi.setAccessToken(clientCredentials.getAccessToken());
+            return spotifyApi;
         } catch (IOException | SpotifyWebApiException e) {
             log.error("Error: {}", e.getMessage());
         }
+
+        return spotifyApi;
     }
 
 

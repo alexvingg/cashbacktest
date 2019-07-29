@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpotifyService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.service</a> &gt; <span class="el_source">SpotifyService.java</span></div><h1>SpotifyService.java</h1><pre class="source lang-java linenums">package com.store.cashback.service;
+
+import com.store.cashback.entity.Album;
+import com.store.cashback.enums.Genres;
+import com.store.cashback.spotify.SpotifyClient;
+import com.store.cashback.util.UUIDUtils;
+import com.wrapper.spotify.model_objects.specification.Recommendations;
+import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.model_objects.specification.TrackSimplified;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+<span class="nc" id="L22">@Slf4j</span>
+<span class="nc" id="L23">public class SpotifyService {</span>
+
+    @Autowired
+    private AlbumService albumService;
+
+    @Autowired
+    private SpotifyClient spotifyClient;
+
+    public Map&lt;String, List&lt;Album&gt;&gt; getAlbums() {
+<span class="nc" id="L32">        log.info(&quot;getAlbums&quot;);</span>
+<span class="nc" id="L33">        Map&lt;String, List&lt;Album&gt;&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L34">        Arrays.asList(Genres.values()).forEach(genre -&gt; {</span>
+            try{
+<span class="nc" id="L36">                map.put(genre.getId(), new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L37">                Recommendations recommendations = this.spotifyClient.getRecommendations(genre);</span>
+<span class="nc" id="L38">                map.put(genre.getId(),  this.mountAlbum(genre.getId(), recommendations, map.get(genre.getId())));</span>
+<span class="nc" id="L39">            }catch (Exception ex){</span>
+<span class="nc" id="L40">                log.error(ex.getMessage());</span>
+<span class="nc" id="L41">            }</span>
+<span class="nc" id="L42">        });</span>
+
+<span class="nc" id="L44">        return map;</span>
+    }
+
+    private List&lt;Album&gt; mountAlbum(String genre, Recommendations recommendations, List&lt;Album&gt; values){
+<span class="nc" id="L48">        Arrays.asList(recommendations.getTracks()).parallelStream().map(TrackSimplified::getId).distinct().limit(50).collect(</span>
+<span class="nc" id="L49">                Collectors.toList()).stream().forEach(id -&gt; {</span>
+            try {
+<span class="nc" id="L51">                Track track = this.spotifyClient.getTrack(id);</span>
+
+<span class="nc" id="L53">                Album album = new Album(null,</span>
+<span class="nc" id="L54">                        UUIDUtils.cleanUuid(),</span>
+<span class="nc" id="L55">                        track.getAlbum().getName(),</span>
+                        genre,
+<span class="nc" id="L57">                        new BigDecimal(BigInteger.valueOf(new Random().nextInt(100001)), 2));</span>
+
+<span class="nc" id="L59">                values.add(album);</span>
+
+<span class="nc" id="L61">            }catch (Exception e){</span>
+<span class="nc" id="L62">                log.error(e.getMessage());</span>
+<span class="nc" id="L63">            }</span>
+<span class="nc" id="L64">        });</span>
+
+<span class="nc" id="L66">        return values;</span>
+    }
+
+    @EventListener
+    public void seedAlbumSpotify(ContextRefreshedEvent event) {
+<span class="nc" id="L71">        log.info(&quot;seedAlbumSpotify&quot;);</span>
+<span class="nc" id="L72">        List&lt;Album&gt; albums = this.albumService.findAll();</span>
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if(albums.isEmpty()){</span>
+<span class="nc" id="L75">            this.getAlbums().forEach((s, albums1) -&gt; {</span>
+<span class="nc" id="L76">                this.albumService.saveAlbums(albums1);</span>
+<span class="nc" id="L77">            });</span>
+        }
+<span class="nc" id="L79">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

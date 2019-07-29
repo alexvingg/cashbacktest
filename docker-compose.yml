@@ -2,13 +2,29 @@ version: '3.1'
 
 services:
 
-  mysql:
+  db:
     image: mysql:5.7
     environment:
       - MYSQL_DATABASE=cashback
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_USER=cash
       - MYSQL_PASSWORD=back
-
     ports:
       - 3306:3306
+
+  springboot-docker-compose-app-container:
+    image: springboot-docker-compose-app:1
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/cashback?useSSL=false
+      - FLYWAY_URL=jdbc:mysql://db:3306/cashback
+      - SPOTIFY_CLIENT=7e9419289c984d7fb856f2e1718bcbd
+      - SPOTIFY_CLIENT_SECRET=5f5c823f44ab246af896c2728e7db9da0
+    depends_on:
+      - db
+    links:
+      - db
+    ports:
+      - "8080:8080"

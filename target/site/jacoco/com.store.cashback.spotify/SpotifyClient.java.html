@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpotifyClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.spotify</a> &gt; <span class="el_source">SpotifyClient.java</span></div><h1>SpotifyClient.java</h1><pre class="source lang-java linenums">package com.store.cashback.spotify;
+
+import com.store.cashback.enums.Genres;
+import com.wrapper.spotify.SpotifyApi;
+import com.wrapper.spotify.exceptions.SpotifyWebApiException;
+import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
+import com.wrapper.spotify.model_objects.specification.Recommendations;
+import com.wrapper.spotify.model_objects.specification.Track;
+import com.wrapper.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.PostConstruct;
+import java.io.IOException;
+
+<span class="nc" id="L18">@Slf4j</span>
+@Component
+<span class="nc" id="L20">public class SpotifyClient {</span>
+
+    @Autowired
+    private Environment env;
+
+
+    public Recommendations getRecommendations(Genres genre) throws IOException, SpotifyWebApiException {
+<span class="nc" id="L27">        return this.spotifyApi().getRecommendations().limit(50).seed_genres(</span>
+<span class="nc" id="L28">                genre.getId()).build().execute();</span>
+    }
+
+    public Track getTrack(String id) throws IOException, SpotifyWebApiException {
+<span class="nc" id="L32">        return this.spotifyApi().getTrack(id).build().execute();</span>
+    }
+
+    private SpotifyApi spotifyApi(){
+<span class="nc" id="L36">        SpotifyApi spotifyApi = null;</span>
+        try {
+<span class="nc" id="L38">            spotifyApi = new SpotifyApi.Builder()</span>
+<span class="nc" id="L39">                    .setClientId(env.getProperty(&quot;SPOTIFY_CLIENT&quot;, this.env.getProperty(&quot;spotify.client&quot;)))</span>
+<span class="nc" id="L40">                    .setClientSecret(env.getProperty(&quot;SPOTIFY_CLIENT_SECRET&quot;,this.env.getProperty(&quot;spotify.client.secret&quot;)))</span>
+<span class="nc" id="L41">                    .build();</span>
+<span class="nc" id="L42">            ClientCredentialsRequest clientCredentialsRequest = spotifyApi.clientCredentials()</span>
+<span class="nc" id="L43">                    .build();</span>
+<span class="nc" id="L44">            final ClientCredentials clientCredentials = clientCredentialsRequest.execute();</span>
+<span class="nc" id="L45">            spotifyApi.setAccessToken(clientCredentials.getAccessToken());</span>
+<span class="nc" id="L46">            return spotifyApi;</span>
+<span class="nc" id="L47">        } catch (IOException | SpotifyWebApiException e) {</span>
+<span class="nc" id="L48">            log.error(&quot;Error: {}&quot;, e.getMessage());</span>
+        }
+
+<span class="nc" id="L51">        return spotifyApi;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

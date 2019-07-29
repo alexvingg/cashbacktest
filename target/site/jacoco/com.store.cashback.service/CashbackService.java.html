@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CashbackService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.service</a> &gt; <span class="el_source">CashbackService.java</span></div><h1>CashbackService.java</h1><pre class="source lang-java linenums">package com.store.cashback.service;
+
+import com.store.cashback.entity.Album;
+import com.store.cashback.entity.Cashback;
+import com.store.cashback.repository.AlbumRepository;
+import com.store.cashback.repository.CashbackRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.time.DayOfWeek;
+import java.util.List;
+
+@Service
+<span class="nc" id="L20">@Slf4j</span>
+<span class="nc" id="L21">public class CashbackService {</span>
+
+    @Autowired
+    private CashbackRepository cashbackRepository;
+
+    public Cashback findCashbackDayOfWeekAndGenre(String genre, DayOfWeek dayOfWeek){
+<span class="nc" id="L27">        log.info(&quot;findCashbackDayOfWeekAndGenre {} {}&quot;, dayOfWeek.getValue(), genre);</span>
+<span class="nc" id="L28">        return this.cashbackRepository.findByDayOfWeekAndGenre(dayOfWeek, genre);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

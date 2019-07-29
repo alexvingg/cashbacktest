@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlbumResource.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.resource</a> &gt; <span class="el_source">AlbumResource.java</span></div><h1>AlbumResource.java</h1><pre class="source lang-java linenums">package com.store.cashback.resource;
+
+import com.store.cashback.exception.InvalidParamsException;
+import com.store.cashback.response.Response;
+import com.store.cashback.service.AlbumService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequestMapping(&quot;v1/album&quot;)
+<span class="fc" id="L16">@Slf4j</span>
+<span class="fc" id="L17">public class AlbumResource {</span>
+
+    @Autowired
+    private AlbumService albumService;
+
+    @GetMapping
+    ResponseEntity&lt;Response&gt; findAlbums(@RequestParam String genre, Pageable pageable) {
+
+<span class="fc" id="L25">        log.info(&quot;findAlbums {}&quot;, genre);</span>
+        try{
+<span class="fc" id="L27">            return ResponseEntity.ok().body(Response.ok().addData(&quot;albums&quot;, albumService.findAlbums(genre, pageable)));</span>
+<span class="nc" id="L28">        }catch (InvalidParamsException ex){</span>
+<span class="nc" id="L29">            log.error(ex.getMessage());</span>
+<span class="nc" id="L30">            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.ok(ex.getMessage()));</span>
+<span class="nc" id="L31">        }catch (Exception ex){</span>
+<span class="nc" id="L32">            log.error(ex.getMessage());</span>
+<span class="nc" id="L33">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L34">                    .body(Response.internalServerError());</span>
+        }
+    }
+
+    @GetMapping(path = &quot;/{slug}&quot;)
+    ResponseEntity&lt;Response&gt; findBySlug(@PathVariable String slug) {
+
+<span class="fc" id="L41">        log.info(&quot;findBySlug {}&quot;, slug);</span>
+        try{
+<span class="fc" id="L43">            return ResponseEntity.ok().body(Response.ok().addData(&quot;album&quot;, albumService.findBySlug(slug)));</span>
+<span class="nc" id="L44">        }catch (InvalidParamsException ex){</span>
+<span class="nc" id="L45">            log.error(ex.getMessage());</span>
+<span class="nc" id="L46">            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response.ok(ex.getMessage()));</span>
+<span class="nc" id="L47">        }catch (Exception ex){</span>
+<span class="nc" id="L48">            log.error(ex.getMessage());</span>
+<span class="nc" id="L49">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L50">                    .body(Response.internalServerError());</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="pt"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">cashback</a> &gt; <a href="index.source.html" class="el_package">com.store.cashback.service</a> &gt; <span class="el_source">SaleService.java</span></div><h1>SaleService.java</h1><pre class="source lang-java linenums">package com.store.cashback.service;
+
+import com.store.cashback.entity.Album;
+import com.store.cashback.entity.Cashback;
+import com.store.cashback.entity.Sale;
+import com.store.cashback.entity.SaleAlbum;
+import com.store.cashback.exception.InvalidParamsException;
+import com.store.cashback.repository.SaleRepository;
+import com.store.cashback.util.UUIDUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+@Service
+<span class="fc" id="L28">@Slf4j</span>
+<span class="nc" id="L29">public class SaleService {</span>
+
+    @Autowired
+    private SaleRepository saleRepository;
+
+    @Autowired
+    private AlbumService albumService;
+
+    @Autowired
+    private CashbackService cashbackService;
+
+    public Page&lt;Sale&gt; findAllSales(Date dateStart, Date dateEnd, Pageable pageable){
+<span class="nc" id="L41">        log.info(&quot;findAllSales {} {} &quot;, dateStart, dateEnd);</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">        if(dateStart == null || dateEnd == null){</span>
+<span class="nc" id="L43">            throw new InvalidParamsException(&quot;invalid params&quot;);</span>
+        }
+
+<span class="nc" id="L46">        Calendar calendar = Calendar.getInstance();</span>
+<span class="nc" id="L47">        calendar.setTime(dateEnd);</span>
+<span class="nc" id="L48">        calendar.set(Calendar.HOUR_OF_DAY, 23);</span>
+<span class="nc" id="L49">        calendar.set(Calendar.MINUTE, 59);</span>
+<span class="nc" id="L50">        calendar.set(Calendar.SECOND, 59);</span>
+
+<span class="nc" id="L52">        PageRequest pageRequest = PageRequest.of(pageable.getPageNumber(), 10, Sort.by(&quot;createdAt&quot;).descending());</span>
+<span class="nc" id="L53">        return this.saleRepository.findByCreatedAtBetween(dateStart, calendar.getTime(), pageRequest);</span>
+    }
+
+    public Sale findSale(String slug){
+<span class="nc" id="L57">        log.info(&quot;findSale {}&quot;, slug);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        if(!StringUtils.hasText(slug)){</span>
+<span class="nc" id="L59">            throw new InvalidParamsException(&quot;invalid params&quot;);</span>
+        }
+<span class="nc" id="L61">        return this.saleRepository.findBySlug(slug);</span>
+    }
+
+    public Sale sell(List&lt;Album&gt; albums){
+
+<span class="nc" id="L66">        log.info(&quot;sell albums {}&quot;, albums);</span>
+
+<span class="nc" id="L68">        Sale newSale = new Sale();</span>
+<span class="nc" id="L69">        newSale.setSlug(UUIDUtils.cleanUuid());</span>
+<span class="nc" id="L70">        newSale.setSaleAlbums(new ArrayList&lt;&gt;());</span>
+<span class="nc" id="L71">        DayOfWeek today = LocalDate.now().getDayOfWeek();</span>
+
+<span class="nc" id="L73">        albums.forEach(album1 -&gt; {</span>
+<span class="nc" id="L74">            Album album = this.albumService.findBySlug(album1.getSlug());</span>
+
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if(album == null){</span>
+<span class="nc" id="L77">                throw new InvalidParamsException(&quot;invalid params&quot;);</span>
+            }
+
+<span class="nc" id="L80">            Cashback cashback = this.cashbackService.findCashbackDayOfWeekAndGenre(album.getGenre(), today);</span>
+<span class="nc" id="L81">            BigDecimal cashbackValue = album.getPrice().multiply(BigDecimal.valueOf(</span>
+<span class="nc" id="L82">                    cashback.getPercent()).divide(BigDecimal.valueOf(100)));</span>
+<span class="nc" id="L83">            SaleAlbum newSaleAlbum = new SaleAlbum();</span>
+<span class="nc" id="L84">            newSaleAlbum.setAlbumName(album.getName());</span>
+<span class="nc" id="L85">            newSaleAlbum.setAlbumSlug(album.getSlug());</span>
+<span class="nc" id="L86">            newSaleAlbum.setAlbumPrice(album.getPrice());</span>
+<span class="nc" id="L87">            newSaleAlbum.setCashback(cashback.getPercent());</span>
+<span class="nc" id="L88">            newSaleAlbum.setSalePrice(album.getPrice().subtract(cashbackValue));</span>
+<span class="nc" id="L89">            newSaleAlbum.setSale(newSale);</span>
+<span class="nc" id="L90">            newSale.getSaleAlbums().add(newSaleAlbum);</span>
+<span class="nc" id="L91">        });</span>
+
+<span class="nc" id="L93">        return this.saleRepository.save(newSale);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
